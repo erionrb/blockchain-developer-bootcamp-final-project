@@ -1,9 +1,20 @@
-# Gift Blocks - Your way to gift someone using crypto
+# Musichain - Your decentralized music store
 
-1 - Users should register in the store somehow validated with Metamask <br>
-2 - Users could buy a Gift Card of any kind in the store<br>
-3 - The amount of the sale should be sent to the seller of the card, and a percent to the store<br>
-4 - Users can send the Gift Card to someone else in the plataform<br>
-5 - Any User or Company can create a Gift Card and put for sale<br>
-6 - Gift Cards could include cryptographic information like a code to be used as a way to withdraw the gift in the place/company that has created.<br>
-7 - Gift Cards should be unique and even looking similiar shouldn't produce same hash
+No matter if you are a musician or a listener, here you find a place to take control of your music assets.
+Built on top of the Ethereum network, Musichain creates a new way to get your royalties secure and faster with the blockchain power in favor.
+
+## Musicians
+
+Publish your work for everyone access and receive the royalties for every sell, even from peer to peer.
+
+## Listeners
+
+Buy musics and titles from you favority artist directly, and help them to receive the amount for his effort.
+
+## Use cases in Daap
+1 - Users should register in the store using Metamask   <br>
+2 - Users can upload media to the store                 <br>
+3 - Users can group the media to titles as they want    <br>
+4 - Users can define their media royalties              <br>
+5 - Users can find for some media they want to buy      <br>
+6 - Users can buy the media using their ether balance   <br>
