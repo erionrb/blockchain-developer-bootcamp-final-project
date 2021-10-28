@@ -1,23 +1,18 @@
-import logo from './logo.svg';
-import './App.css';
+import logo from "./logo.svg";
+import "./App.css";
+import MusicCard from "./store/card/music-card";
+import Menu from "./header/menu";
+import Thumbnail from "./common/thumbnail/custom-thumb";
 
 function App() {
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/picnic" />
+      <Menu />
+      <div className="App-content">
+        <Thumbnail />
+        <MusicCard />
+      </div>
     </div>
   );
 }

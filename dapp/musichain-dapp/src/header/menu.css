@@ -1,0 +1,12 @@
+.background {
+    background-color: #74DBEF;
+    padding: 20px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+}
+
+.text {
+    color: #264E86;
+    font-size: 20px;
+    font-weight: bold;
+}

@@ -1,0 +1,19 @@
+.cst-default {
+  color: #ffffff;
+  background: #5E88FC;
+}
+
+.cst-default:hover {
+  color: #000000;
+  background: #AFFFFF;
+}
+
+.cst-primary {
+  color: #ffffff;
+  background: #264E86;
+}
+
+.cst-primary:hover {
+  color: #000000;
+  background: #AFFFFF;
+}
