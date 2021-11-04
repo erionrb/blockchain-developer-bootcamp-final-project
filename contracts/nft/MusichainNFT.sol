@@ -3,10 +3,11 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Burnable.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
 //// @title Musichain NFT Contract
 //// @notice The base contract to create NFTs in Musichain plataform
-abstract contract MusichainNFT is ERC1155, ERC1155Burnable {
+abstract contract MusichainNFT is ERC1155, ERC1155Burnable, Ownable {
     function mint(
         address account,
         uint256 id,

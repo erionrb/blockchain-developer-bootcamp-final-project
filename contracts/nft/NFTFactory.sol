@@ -21,11 +21,23 @@ contract NFTFactory {
      */
 
     //// @notice Prevent not media owner creation
-    modifier onlyMediaOwner(address _owner, address _album) {
+    modifier onlyNftOwner(address _owner, address _album) {
         require(
-            MediaNFT(_album).owner() == _owner,
-            "Only media owner is acceptable"
+            MusichainNFT(_album).owner() == _owner,
+            "Only NFT owner is acceptable"
         );
+        _;
+    }
+
+    //// @notice Prevent not album nft
+    modifier onlyAlbum(address _album) {
+        require(MusichainNFT(_album).isAlbum(), "NFT is not an Album");
+        _;
+    }
+
+    //// @notice Prevent not media nft
+    modifier onlyMedia(address _media) {
+        require(!MusichainNFT(_media).isAlbum(), "NFT is not a Media");
         _;
     }
 
@@ -35,6 +47,16 @@ contract NFTFactory {
 
     event AlbumCreated(address indexed _owner, address _album);
     event MediaCreated(address indexed _owner, address _media);
+    event AlbumTokenMinted(
+        address indexed _owner,
+        address _album,
+        uint256 _tokenId
+    );
+    event MediaTokenMinted(
+        address indexed _owner,
+        address _media,
+        uint256 _tokenId
+    );
 
     /**
      * Functions
@@ -54,6 +76,30 @@ contract NFTFactory {
         MediaNFT media = new MediaNFT(msg.sender, _baseUrl);
         albumToOwner[address(media)] = msg.sender;
         emit MediaCreated(msg.sender, address(media));
+    }
+
+    //// @notice Create new album NFT token.
+    //// @param _album The album NFT contract address.
+    //// @param _tokenId The album NFT token id.
+    function createAlbumToken(address _album, uint256 _tokenId)
+        public
+        onlyNftOwner(msg.sender, _album)
+        onlyAlbum(_album)
+    {
+        AlbumNFT(_album).mint(msg.sender, _tokenId, 1, "");
+        emit AlbumTokenMinted(msg.sender, _album, _tokenId);
+    }
+
+    //// @notice Create new media NFT token.
+    //// @param _media The media NFT contract address.
+    //// @param _tokenId The media NFT token id.
+    function createMediaToken(address _media, uint256 _tokenId)
+        public
+        onlyNftOwner(msg.sender, _media)
+        onlyMedia(_media)
+    {
+        AlbumNFT(_media).mint(msg.sender, _tokenId, 1, "");
+        emit MediaTokenMinted(msg.sender, _media, _tokenId);
     }
 
     //// @notice Check if the address has the ownership of the nft
