@@ -61,7 +61,7 @@ contract Marketplace is Ownable {
      * Events
      */
     event NewAlbumToSales(address indexed _seller, address _album);
-    event NewMediaToSales(address indexed _seller, address __media);
+    event NewMediaToSales(address indexed _seller, address _media);
 
     /**
      * Structs

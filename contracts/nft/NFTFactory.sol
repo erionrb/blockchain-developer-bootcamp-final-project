@@ -27,7 +27,7 @@ contract NFTFactory {
             "Only NFT owner is acceptable"
         );
         _;
-    }
+    }   
 
     //// @notice Prevent not album nft
     modifier onlyAlbum(address _album) {
