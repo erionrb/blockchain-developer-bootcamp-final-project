@@ -7,6 +7,7 @@
       <router-link to="/album" class="menuItem">Create Album</router-link>
       <router-link to="/media" class="menuItem">Create Media</router-link>
       <router-link to="/buy" class="menuItem">Buy NFT</router-link>
+      <router-link to="/user" class="menuItem">My NFT's</router-link>
       <div class="menu">
         <button class="metamask-button">
           <span><img src="https://docs.metamask.io/metamask-fox.svg" /></span>

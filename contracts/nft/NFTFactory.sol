@@ -10,11 +10,10 @@ contract NFTFactory {
     /**
      * State Variables
      */
-
-    mapping(address => address) public albumToOwner;
-    mapping(address => address) public mediaToOwner;
-    address[] public albumContracts;
-    address[] public mediaContracts;
+    mapping(address => address) private albumToOwner;
+    mapping(address => address) private mediaToOwner;
+    NFTContract[] public albumContracts;
+    NFTContract[] public mediaContracts;
 
     /**
      * Modifiers
@@ -27,7 +26,7 @@ contract NFTFactory {
             "Only NFT owner is acceptable"
         );
         _;
-    }   
+    }
 
     //// @notice Prevent not album nft
     modifier onlyAlbum(address _album) {
@@ -44,7 +43,6 @@ contract NFTFactory {
     /**
      * Events
      */
-
     event AlbumCreated(address indexed _owner, address _album);
     event MediaCreated(address indexed _owner, address _media);
     event AlbumTokenMinted(
@@ -59,22 +57,62 @@ contract NFTFactory {
     );
 
     /**
+     * Structs
+     */
+    struct NFTContract {
+        address owner;
+        address contractAddress;
+        string url;
+        string description;
+        string name;
+        bool album;
+    }
+
+    /**
      * Functions
      */
 
     //// @notice Create new NFT album contract.
     //// @param _baseUrl The album NFT base url.
-    function createAlbumNFT(string memory _baseUrl) public {
+    function createAlbumNFT(
+        string memory _baseUrl,
+        string memory _name,
+        string memory _description
+    ) public {
         AlbumNFT album = new AlbumNFT(msg.sender, _baseUrl);
         albumToOwner[address(album)] = msg.sender;
+        albumContracts.push(
+            NFTContract({
+                owner: msg.sender,
+                contractAddress: address(album),
+                url: _baseUrl,
+                description: _description,
+                name: _name,
+                album: true
+            })
+        );
         emit AlbumCreated(msg.sender, address(album));
     }
 
     //// @notice Create NFT media contract.
     //// @param _baseUrl The media NFT base url.
-    function createMediaNFT(string memory _baseUrl) public {
+    function createMediaNFT(
+        string memory _baseUrl,
+        string memory _name,
+        string memory _description
+    ) public {
         MediaNFT media = new MediaNFT(msg.sender, _baseUrl);
-        albumToOwner[address(media)] = msg.sender;
+        mediaToOwner[address(media)] = msg.sender;
+        mediaContracts.push(
+            NFTContract({
+                owner: msg.sender,
+                contractAddress: address(media),
+                url: _baseUrl,
+                description: _description,
+                name: _name,
+                album: false
+            })
+        );
         emit MediaCreated(msg.sender, address(media));
     }
 
@@ -108,5 +146,24 @@ contract NFTFactory {
     //// @return True if the address is the owner of the NFT.
     function isOwner(address _owner, address _nft) public view returns (bool) {
         return albumToOwner[_nft] == _owner || mediaToOwner[_nft] == _owner;
+    }
+
+    //// @notice Get all NFTs by owner.
+    //// @return NFT array.
+    function getNFTContracts() public view returns (NFTContract[] memory) {
+        NFTContract[] memory result = new NFTContract[](
+            albumContracts.length + mediaContracts.length
+        );
+        for (uint256 i = 0; i < albumContracts.length; i++) {
+            if (albumContracts[i].owner == msg.sender) {
+                result[i] = albumContracts[i];
+            }
+        }
+        for (uint256 i = 0; i < mediaContracts.length; i++) {
+            if (mediaContracts[i].owner == msg.sender) {
+                result[i + albumContracts.length] = mediaContracts[i];
+            }
+        }
+        return result;
     }
 }
