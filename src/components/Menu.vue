@@ -4,10 +4,10 @@
       <a class="brand">
         <span class="brand-name">Musichain</span>
       </a>
-      <router-link to="/album" class="menuItem">Create Album</router-link>
-      <router-link to="/media" class="menuItem">Create Media</router-link>
-      <router-link to="/buy" class="menuItem">Buy NFT</router-link>
-      <router-link to="/user" class="menuItem">My NFT's</router-link>
+      <router-link to="/album" class="menuItem">Album</router-link>
+      <router-link to="/marketplace" class="menuItem">Marketplace</router-link>
+      <router-link to="/dashboard" class="menuItem">My Dashboard</router-link>
+      
       <div class="menu">
         <button class="metamask-button">
           <span><img src="https://docs.metamask.io/metamask-fox.svg" /></span>
@@ -18,7 +18,7 @@
   </div>
 </template>
 
-<script>
+<script scoped>
 export default {
   name: "HeaderComp",
   data() {
@@ -35,7 +35,7 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 .brand-name {
   font-size: 1.5em;
   font-weight: bold;

@@ -1,31 +1,32 @@
 import { createWebHistory, createRouter } from "vue-router";
-import ContentBuy from "../components/ContentBuyComp.vue";
-import MediaCreation from "../components/CreateMediaComp.vue";
-import AlbumCreation from "../components/CreateAlbumComp.vue";
-import UserNFTComp from "../components/UserNFTComp.vue";
+import Marketplace from "../components/Marketplace.vue";
+import TokenBuilder from "../components/TokenBuilder.vue";
+import Album from "../components/ContractBuilder.vue";
+import Dashboard from "../components/Dashboard.vue";
 
 const routes = [
   {
-    path: "/buy",
-    name: "Buy",
-    component: ContentBuy,
+    path: "/marketplace",
+    name: "Marketplace",
+    component: Marketplace,
   },
   {
     path: "/album",
     name: "Album",
-    component: AlbumCreation,
+    component: Album,
   },
   {
-    path: "/media",
-    name: "Media",
-    component: MediaCreation,
+    path: "/dashboard",
+    name: "Dashboard",
+    component: Dashboard,
   },
   {
-    path: "/user",
-    name: "UserNFT",
-    component: UserNFTComp,
-  },
-];
+    path: "/addnft",
+    name: "TokenBuilder",
+    component: TokenBuilder
+  }
+]
+;
 
 const router = createRouter({
   history: createWebHistory(),

@@ -6,24 +6,28 @@
   </div>
 
   <div class="flex three content">
-    <div v-for="nft in nfts" :key="nft.contract">
+    <div v-for="album in albums" :key="album.contract">
       <article class="card">
         <header>
           <div>
-            <span class="label success">{{ nft.contract }}</span>
+            <span class="label success">{{ album.contract }}</span>
             <span class="label success">owned</span>
           </div>
           <div>
-            <span>{{ nft.name }}</span
+            <span>{{ album.name }}</span
             ><br />
           </div>
         </header>
-        <img :src="nft.img" />
-        <p>Name: {{ nft.name }}</p>
-        <p>URL: {{ nft.url }}</p>
-        <p>Description: {{ nft.description }}</p>
+        <img :src="album.img" />
+        <p>Description: {{ album.description }}</p>
         <footer>
-          <p>Footer</p>
+          <div style="padding: 10px">
+            <router-link
+              :to="{ name: 'TokenBuilder', params: { contract: album.contract } }"
+              class="button button-no-border"
+              >Add NFT</router-link
+            >
+          </div>
         </footer>
       </article>
     </div>
@@ -34,13 +38,13 @@
 import { ethers } from "ethers";
 import Web3Modal from "web3modal";
 
-import NFTFactory from "../../artifacts/contracts/nft/NFTFactory.sol/NFTFactory.json";
-const NFT_FACTORY_ADDRESS = process.env.VUE_APP_NFT_FACTORY_ADDRESS;
+import Marketplace from "../../artifacts/contracts/marketplace/Marketplace.sol/Marketplace.json";
+const MARKETPLACE_ADDRESS = process.env.VUE_APP_MARKETPLACE_ADDRESS;
 
 export default {
   data() {
     return {
-      nfts: [],
+      albums: [],
     };
   },
   created() {
@@ -48,33 +52,38 @@ export default {
   },
   methods: {
     async loadData() {
+
+      console.log(`Loading data from ${MARKETPLACE_ADDRESS}`);
+
       const web3Modal = new Web3Modal();
       const connection = await web3Modal.connect();
       const provider = new ethers.providers.Web3Provider(connection);
       const signer = provider.getSigner();
 
-      const nftFactory = new ethers.Contract(
-        NFT_FACTORY_ADDRESS,
-        NFTFactory.abi,
+      const marketplace = new ethers.Contract(
+        MARKETPLACE_ADDRESS,
+        Marketplace.abi,
         signer
       );
 
-      const data = await nftFactory.getNFTContracts();
+      const data = await marketplace.getSellerContracts();
+      console.log(data);
 
       if (data) {
         const items = await Promise.all(
-          data.map(async (_nft) => {
-            console.log(_nft.url);
+          data.map(async (album) => {
             return {
-              contract: _nft.contractAddress,
-              url: _nft.url,
-              name: _nft.name,
-              description: _nft.description.substring(0, 100) + "...",
-              img: "https://thumbs.dreamstime.com/b/dynamic-radial-color-sound-equalizer-design-music-album-cover-template-abstract-circular-digital-data-form-vector-160916775.jpg"
+              owner: album.owner,
+              contract: album.contractAddress,
+              url: album.url,
+              name: album.name,
+              description: album.description.substring(0, 100) + "...",
+              img: "https://tinyurl.com/nftimg00101",
             };
           })
         );
-        this.nfts = items;
+        this.albums = items;
+        // this.$forceUpdate(); force redisplay
       }
     },
   },
@@ -130,7 +139,7 @@ export default {
 }
 
 footer {
-    background: #5483ac;
-    color: #fff;
+  background: #5483ac;
+  color: #fff;
 }
 </style>
