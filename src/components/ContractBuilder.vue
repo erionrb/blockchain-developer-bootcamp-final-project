@@ -114,12 +114,12 @@ export default {
         console.log(result);
 
         // Log event result
-        let logs = result.events.filter(
-          (e) => e.event === "MarketplaceContractAdded"
-        );
-        const { _seller, _contract } = logs[0].args;
-        console.log(`_seller> ${_seller}`);
-        console.log(`_contract> ${_contract}`);
+        // let logs = result.events.filter(
+        //   (e) => e.event === "MarketplaceContractAdded"
+        // );
+        // const { _seller, _contract } = logs[0].args;
+        // console.log(`_seller> ${_seller}`);
+        // console.log(`_contract> ${_contract}`);
 
         this.openModal("commonModal");
       } catch (e) {
