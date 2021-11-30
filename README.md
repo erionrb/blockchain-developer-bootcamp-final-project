@@ -50,16 +50,16 @@ npx hardhat test
 
 ## Accessing the frontend
 
-You can access the frontend [here](https://blockchain-developer-bootcamp-final-project-a7s7zxl2x-erionrb.vercel.app/marketplace).
+You can access the frontend [here](https://blockchain-developer-bootcamp-final-project-rho.vercel.app/).
 
 ## Screencast
 
-To view a screencast [visit](https://drive.google.com/file/d/1kSWZ2Ka_Qe7pSDcqXzg65j0RPiNgYP8k/view?usp=sharing)
+To view a screencast [visit](https://www.loom.com/share/f699e80ba68b424c965fd6a6ec90d7ad)
 
 :warning: **Make sure you are connecting a BSC testnet wallet**: Be very careful here!
 
 ## Getting started
-**Make sure that youhave installed hardhat globally with npm install -g hardhat before you proceed with this**
+**Make sure that you have installed hardhat globally with npm install -g hardhat before you proceed with this**
 
 To install the local dependencies run `yarn install` in the `root` directory of the project. To run the frontend, call `yarn run serve` also in the root directory.
 
