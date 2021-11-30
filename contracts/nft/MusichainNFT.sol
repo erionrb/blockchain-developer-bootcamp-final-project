@@ -10,12 +10,19 @@ import "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Burnable.sol";
  */
 contract MusichainNFT is ERC1155, ERC1155Burnable {
     address private _owner;
+    mapping(uint256 => TokenType) private tokenTypeMap;
+
+    struct TokenType {
+        uint256 id;
+        string tokenURI;
+        bool mintable;
+    }
 
     constructor(address _deployer, string memory _baseUrl) ERC1155(_baseUrl) {
         _setOwner(_deployer);
     }
 
-    event OwnershipTransferred(
+    event OwnershipTransfered(
         address indexed previousOwner,
         address indexed newOwner
     );
@@ -58,18 +65,56 @@ contract MusichainNFT is ERC1155, ERC1155Burnable {
         _setOwner(newOwner);
     }
 
+    /**
+     * @dev Set the owner of the contract.
+     */
     function _setOwner(address newOwner) private {
         address oldOwner = _owner;
         _owner = newOwner;
-        emit OwnershipTransferred(oldOwner, newOwner);
+        emit OwnershipTransfered(oldOwner, newOwner);
     }
 
+    /**
+     * @dev Min a new token to the contract.
+     */
     function mint(
         address account,
         uint256 id,
         uint256 amount,
         bytes memory data
     ) public {
+        require(tokenTypeMap[id].mintable, "Token is not mintable");
         _mint(account, id, amount, data);
+    }
+
+    /**
+     * @dev Transfer a token to another account(owner).
+     */
+    function transferFrom(
+        address _from,
+        address _receiver,
+        uint256 _tokenId,
+        uint256 _amount
+    ) public {
+        _safeTransferFrom(_from, _receiver, _tokenId, _amount, "");
+    }
+
+    /**
+     * @dev Add new token type to the contract. (Only owner can execute this)
+     */
+    function addTokenType(uint256 _tokenId, string memory _tokenUri)
+        public
+        onlyOwner
+    {
+        require(!tokenTypeMap[_tokenId].mintable, "Token Type already created");
+        tokenTypeMap[_tokenId] = TokenType(_tokenId, _tokenUri, true);
+    }
+
+    function getTokenUri(uint256 _tokenId) public view returns (string memory) {
+        return tokenTypeMap[_tokenId].tokenURI;
+    }
+
+    function isTokenTypeMintable(uint256 _tokenId) public view returns (bool) {
+        return tokenTypeMap[_tokenId].mintable;
     }
 }

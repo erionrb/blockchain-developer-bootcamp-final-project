@@ -1,17 +1,18 @@
 <template>
-  <div style="padding: 10px">
-    <span>Filter by: </span>
-    <button class="filter-btn">Album</button>
-    <button class="filter-btn">Media</button>
+  <div v-if="noAlbumsAvailable" class="flex three content">
+    <h2>No albums available</h2>
   </div>
 
-  <div class="flex three content">
+  <div v-if="mediaActive" style="padding: 10px">
+    <button class="button button-no-border" @click="activeAlbum">Albums</button>
+  </div>
+
+  <div v-if="albumActive" class="flex three content">
     <div v-for="album in albums" :key="album.contract">
       <article class="card">
         <header>
           <div>
             <span class="label success">{{ album.contract }}</span>
-            <span class="label success">owned</span>
           </div>
           <div>
             <span>{{ album.name }}</span
@@ -21,14 +22,45 @@
         <img :src="album.img" />
         <p>Description: {{ album.description }}</p>
         <footer>
-          <div style="padding: 10px">
-            <router-link
-              :to="{ name: 'TokenBuilder', params: { contract: album.contract } }"
-              class="button button-no-border"
-              >Add NFT</router-link
-            >
+          <div class="container">
+            <div class="row">
+              <div class="col-md-6">
+                <router-link
+                  :to="{
+                    name: 'TokenBuilder',
+                    params: { contract: album.contract },
+                  }"
+                  class="button button-no-border"
+                  >Add NFT</router-link
+                >
+              </div>
+              <div class="col-md-6">
+                <button
+                  class="button button-no-border"
+                  @click="activeMedia(album.contract)"
+                >
+                  List NFT
+                </button>
+              </div>
+            </div>
           </div>
         </footer>
+      </article>
+    </div>
+  </div>
+
+  <!-- Media ************************************************ -->
+  <div v-if="mediaActive" class="flex three content">
+    <div v-for="media in medias" :key="media._$index">
+      <article class="card">
+        <header>
+          <div class="flex two three-1000 demo">
+            <div>
+              <span>{{ media.name }}</span>
+            </div>
+          </div>
+        </header>
+        <img :src="media.img" />
       </article>
     </div>
   </div>
@@ -45,14 +77,18 @@ export default {
   data() {
     return {
       albums: [],
+      medias: [],
+      albumActive: true,
+      mediaActive: false,
+      activeContract: undefined,
+      noAlbumsAvailable: true,
     };
   },
   created() {
     this.loadData();
   },
   methods: {
-    async loadData() {
-
+    async loadAlbum() {
       console.log(`Loading data from ${MARKETPLACE_ADDRESS}`);
 
       const web3Modal = new Web3Modal();
@@ -67,7 +103,6 @@ export default {
       );
 
       const data = await marketplace.getSellerContracts();
-      console.log(data);
 
       if (data) {
         const items = await Promise.all(
@@ -83,8 +118,65 @@ export default {
           })
         );
         this.albums = items;
-        // this.$forceUpdate(); force redisplay
       }
+      this.noAlbumsAvailable = this.albums.length == 0;
+    },
+
+    async loadMedia() {
+      const web3Modal = new Web3Modal();
+      const connection = await web3Modal.connect();
+      const provider = new ethers.providers.Web3Provider(connection);
+      const signer = provider.getSigner();
+      const userAddress = await signer.getAddress();
+
+      const marketplace = new ethers.Contract(
+        MARKETPLACE_ADDRESS,
+        Marketplace.abi,
+        signer
+      );
+
+      const data = await marketplace.getContractTokens(this.activeContract);
+      let _index = 0;
+
+      if (data) {
+        const items = await Promise.all(
+          data.map(async (_item) => {
+            console.log(_item);
+            return {
+              _$index: _index++,
+              owner: _item.owner,
+              seller: _item.seller,
+              contractAddress: _item.contractAddress,
+              price: _item.price,
+              tokenId: _item.tokenId,
+              sold: _item.sold,
+              url: _item.url,
+              name: _item.name,
+              isContract: _item.isContract,
+              img: "https://tinyurl.com/nftimg00101",
+            };
+          })
+        );
+        this.medias = items;
+      }
+    },
+
+    async loadData() {
+      if (this.albumActive) this.loadAlbum();
+      else this.loadMedia();
+    },
+
+    activeAlbum() {
+      this.albumActive = true;
+      this.mediaActive = false;
+      this.loadData();
+    },
+
+    activeMedia(_contract) {
+      this.albumActive = false;
+      this.mediaActive = true;
+      this.activeContract = _contract;
+      this.loadData();
     },
   },
 };

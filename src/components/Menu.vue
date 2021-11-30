@@ -7,13 +7,6 @@
       <router-link to="/album" class="menuItem">Album</router-link>
       <router-link to="/marketplace" class="menuItem">Marketplace</router-link>
       <router-link to="/dashboard" class="menuItem">My Dashboard</router-link>
-      
-      <div class="menu">
-        <button class="metamask-button">
-          <span><img src="https://docs.metamask.io/metamask-fox.svg" /></span>
-          <span>Metamask</span>
-        </button>
-      </div>
     </nav>
   </div>
 </template>
