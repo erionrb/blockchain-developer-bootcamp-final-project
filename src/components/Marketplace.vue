@@ -27,7 +27,7 @@
               </div>
             </header>
             <img :src="item.img" />
-            <footer v-if="item.mine">
+            <footer>
               <button
                 v-if="!item.sold"
                 class="nft-button"
@@ -35,7 +35,7 @@
               >
                 Buy
               </button>
-              <audio controls>
+              <audio v-if="item.mine" controls>
                 <source :src="item.url" type="audio/mp3" />
                 Your browser does not support the audio element.
               </audio>

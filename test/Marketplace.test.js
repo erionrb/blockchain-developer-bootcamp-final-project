@@ -1,8 +1,7 @@
 const { expect } = require("chai");
 const URI = "http://mycustomui.com/{id}";
 const isDebugEnabled = false;
-const AlbumNFT_JSON = require("../artifacts/contracts/nft/AlbumNFT.sol/AlbumNFT.json");
-const MediaNFT_JSON = require("../artifacts/contracts/nft/MediaNFT.sol/MediaNFT.json");
+const MusichainNFT = require("../artifacts/contracts/nft/MusichainNFT.sol/MusichainNFT.json");
 
 const log = (message) => (isDebugEnabled ? console.log(message) : () => {});
 const errorEvaluation = (_error, _expectedError) =>
@@ -10,109 +9,137 @@ const errorEvaluation = (_error, _expectedError) =>
 
 describe("Marketplace", async () => {
   let marketplace;
-  let album;
-  let media;
   let nftOwner;
   let anotherAccount;
-
-  // How we gonna store our tokens in the test run
-  // [{
-  //   owner: "0x0000000000000000000000000000000000000000",
-  //   albums: [],
-  //   medias: []
-
-  // }];
-  let tokens = [];
+  let lastAlbumContractAddress;
+  let lastMarketTokenId;
 
   before(async () => {
-    // NFTFactory ==============================================================
     // Set the buyer address as accounts[1]
     // accounts[0] or first account is ignored as it is the owner of the contract
-    const [_, _nftOwner, _anotherAccount] = await ethers.getSigners();
+    const [_, _nftOwner, _someAccount, _anotherAccount] =
+      await ethers.getSigners();
     nftOwner = _nftOwner;
+    someAccount = _someAccount;
     anotherAccount = _anotherAccount;
-
-    NFTFactory = await ethers.getContractFactory("NFTFactory");
-    // Instantiate NFT Factory
-    factory = await NFTFactory.deploy();
-    await factory.deployed();
-    // =========================================================================
 
     // Marketplace =============================================================
     const Marketplace = await ethers.getContractFactory("Marketplace");
     // Instantiate Marketplace
-    marketplace = await Marketplace.deploy(factory.address);
+    marketplace = await Marketplace.deploy();
     await marketplace.deployed();
-
-    let tx = await factory.connect(nftOwner).createAlbumNFT(URI);
-    let result = await tx.wait();
-
-    let logs = result.events.filter((e) => e.event === "AlbumCreated");
-    const { __, _album } = logs[0].args;
-    album = _album;
-    // =========================================================================
-
-    tx = await factory.connect(nftOwner).createMediaNFT(URI);
-    result = await tx.wait();
-
-    logs = result.events.filter((e) => e.event === "MediaCreated");
-    const { ___, _media } = logs[0].args;
-    media = _media;
   });
 
-  it("[Album] Should add album", async () => {
-    const sellingPrice = ethers.utils.parseUnits("10", "ether");
+  it("[NFT Contract] Should add album to Marketplace", async () => {
+    const _name = "My Album";
+    const _description = "This is a test album";
+
     let tx = await marketplace
-      .connect(nftOwner)
-      .addAlbumToMarket(album, sellingPrice);
+      .connect(someAccount)
+      .addContract(URI, _name, _description);
     const result = await tx.wait();
 
-    let logs = result.events.filter((e) => e.event === "NewAlbumToSales");
-    const { _seller, _album } = logs[0].args;
-    log(`_seller: ${_seller}\n_album: ${_album} `);
+    let logs = result.events.filter(
+      (e) => e.event === "MarketplaceContractAdded"
+    );
+    const { _seller, _contract } = logs[0].args;
+    log(`_seller: ${_seller}\n_album: ${_contract} `);
 
-    expect(_seller).to.equal(nftOwner.address);
-    expect(_album).to.not.be.undefined;
+    lastAlbumContractAddress = _contract;
+    expect(_seller).to.equal(someAccount.address);
+    expect(_contract).to.not.be.undefined;
   });
 
-  it("[Album] Should not add album twice", async () => {
-    const sellingPrice = ethers.utils.parseUnits("10", "ether");
-    const expectedError = "Album already exists";
+  it("[NFT Token] Should not add media to album NFT when tokenId is unknown (not mintable)", async () => {
+    const _name = "My Music";
+    const _nftTokenId = 1;
+    const _price = ethers.utils.parseEther("0.001");
+    const expectedError = "Token Id is not Mintable";
 
     await marketplace
-      .connect(nftOwner)
-      .addAlbumToMarket(album, sellingPrice)
+      .connect(someAccount)
+      .addToken(lastAlbumContractAddress, _name, _nftTokenId, _price)
       .then(
         (result) => {},
         (error) => expect(errorEvaluation(error, expectedError)).to.equal(true)
       );
   });
 
-  it("[Media] Should add media", async () => {
-    const sellingPrice = ethers.utils.parseUnits("10", "ether");
-    let tx = await marketplace
-      .connect(nftOwner)
-      .addMediaToMarket(media, sellingPrice);
+  it("[NFT Token] Should add token id to NFT Contract", async () => {
+    const nftContract = new ethers.Contract(
+      lastAlbumContractAddress,
+      MusichainNFT.abi,
+      someAccount
+    );
+
+    const tokenId = 1;
+    const tokenUri = "uRQdrregr77";
+    const tx = await nftContract.addTokenType(tokenId, tokenUri);
     const result = await tx.wait();
 
-    let logs = result.events.filter((e) => e.event === "NewMediaToSales");
-    const { _seller, _media } = logs[0].args;
-    log(`_seller: ${_seller}\n_album: ${_media} `);
+    let logs = result.events.filter((e) => e.event === "TokenTypeAdded");
+    const { _tokenId, _tokenUri } = logs[0].args;
+    log(`_tokenId: ${_tokenId}\n_tokenUri: ${_tokenUri} `);
 
-    expect(_seller).to.equal(nftOwner.address);
-    expect(_media).to.not.be.undefined;
+    expect(_tokenId.toNumber()).to.equal(tokenId);
+    expect(_tokenUri).to.equal(tokenUri);
   });
 
-  it("[Media] Should not add media twice", async () => {
-    const sellingPrice = ethers.utils.parseUnits("10", "ether");
-    const expectedError = "Media already exists";
+  it("[NFT Token] Should add token to Marketplace", async () => {
+    const _name = "My Music";
+    const _nftTokenId = 1;
+    const _price = ethers.utils.parseEther("0.001");
+
+    let tx = await marketplace
+      .connect(someAccount)
+      .addToken(lastAlbumContractAddress, _name, _nftTokenId, _price);
+    const result = await tx.wait();
+
+    let logs = result.events.filter((e) => e.event === "MarketplaceTokenAdded");
+    const { _seller, _contract, _tokenId, _marketTokenId } = logs[0].args;
+    log(
+      `_seller: ${_seller}\n_token: ${_contract}\n_tokenId: ${_tokenId}\n_marketTokenId: ${_marketTokenId} `
+    );
+
+    lastMarketTokenId = _marketTokenId;
+    expect(_seller).to.equal(someAccount.address);
+    expect(_contract).to.equal(lastAlbumContractAddress);
+    expect(_tokenId).to.equal(_nftTokenId);
+  });
+
+  it("[Marketplace] Should not buy token when price does not match", async () => {
+    const price = ethers.utils.parseEther("0.01");
+    const expectedError = "NFT token price is not correct";
 
     await marketplace
-      .connect(nftOwner)
-      .addMediaToMarket(media, sellingPrice)
+      .connect(anotherAccount)
+      .buyToken(lastMarketTokenId, lastAlbumContractAddress, {
+        value: price,
+      })
       .then(
         (result) => {},
         (error) => expect(errorEvaluation(error, expectedError)).to.equal(true)
       );
+  });
+
+  it("[Marketplace] Should buy token from marketplace", async () => {
+    const price = ethers.utils.parseEther("0.001");
+
+    let tx = await marketplace
+      .connect(anotherAccount)
+      .buyToken(lastMarketTokenId, lastAlbumContractAddress, {
+        value: price,
+      });
+    const result = await tx.wait();
+
+    let logs = result.events.filter((e) => e.event === "TokenTransfered");
+    const { _currentOwner, _newOwner, _tokenId } = logs[0].args;
+    log(
+      `_currentOwner: ${_currentOwner}\_newOwner: ${_newOwner}\_tokenId: ${_tokenId}`
+    );
+
+    expect(_currentOwner).to.equal(someAccount.address);
+    expect(_newOwner).to.equal(anotherAccount.address);
+    expect(_tokenId).to.equal(1);
   });
 });

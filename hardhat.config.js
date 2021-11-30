@@ -14,6 +14,10 @@ module.exports = {
       url: `https://rinkeby.infura.io/v3/${INFURA_KEY}`,
       accounts: [`${PRIVATE_KEY}`]
     },
+    bsctestnet: {
+      url: `https://data-seed-prebsc-1-s1.binance.org:8545`,
+      accounts: [`${PRIVATE_KEY}`]
+    },
     mumbai: {
       url: "https://rpc-mumbai.matic.today",
       accounts: [PRIVATE_KEY],

@@ -27,7 +27,8 @@ contract Marketplace is Ownable {
     event MarketplaceTokenAdded(
         address indexed _seller,
         address _contract,
-        uint256 _tokenId
+        uint256 _tokenId,
+        uint256 _marketTokenId
     );
     event MarketplaceContractAdded(address indexed _seller, address _contract);
     event TokenTransfered(
@@ -140,7 +141,7 @@ contract Marketplace is Ownable {
 
         contractToMarketItemTokens[_contract].push(marketplaceItemToken);
 
-        emit MarketplaceTokenAdded(msg.sender, _contract, _tokenId);
+        emit MarketplaceTokenAdded(msg.sender, _contract, _tokenId, _marketTokenId);
     }
 
     /**
@@ -340,7 +341,10 @@ contract Marketplace is Ownable {
         // Transfer the token to the buyer
         token.owner = msg.sender;
         token.sold = true;
+        
         nft.transferFrom(currentOwner, msg.sender, token.tokenId, 1);
+        (bool success, ) = token.seller.call{value: token.price}("");
+        require(success, "NFT price transfer failed");
 
         emit TokenTransfered(currentOwner, msg.sender, token.tokenId);
     }

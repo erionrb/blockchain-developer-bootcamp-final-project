@@ -27,6 +27,8 @@ contract MusichainNFT is ERC1155, ERC1155Burnable {
         address indexed newOwner
     );
 
+    event TokenTypeAdded(uint256 _tokenId, string _tokenUri);
+
     /**
      * @dev Returns the address of the current owner.
      */
@@ -67,6 +69,7 @@ contract MusichainNFT is ERC1155, ERC1155Burnable {
 
     /**
      * @dev Set the owner of the contract.
+     * @param newOwner The address to transfer ownership to. 
      */
     function _setOwner(address newOwner) private {
         address oldOwner = _owner;
@@ -108,12 +111,19 @@ contract MusichainNFT is ERC1155, ERC1155Burnable {
     {
         require(!tokenTypeMap[_tokenId].mintable, "Token Type already created");
         tokenTypeMap[_tokenId] = TokenType(_tokenId, _tokenUri, true);
+        emit TokenTypeAdded(_tokenId, _tokenUri);
     }
 
+    /**
+     * @dev Returns the token uri of the token type.
+     */
     function getTokenUri(uint256 _tokenId) public view returns (string memory) {
         return tokenTypeMap[_tokenId].tokenURI;
     }
 
+    /**
+     * @dev Returns if a specific token type is mintable.
+     */
     function isTokenTypeMintable(uint256 _tokenId) public view returns (bool) {
         return tokenTypeMap[_tokenId].mintable;
     }
